@@ -1,0 +1,18 @@
+server {
+    listen 80;
+    server_name vasulka.cz www.vasulka.cz;
+
+    location / {
+        proxy_pass http://vasulka.cz:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+    # gzip
+        gzip on;
+        gzip_min_length 1100;
+        gzip_buffers 4 32k;
+        gzip_types text/css text/x-component application/x-javascript application/javascript text/javascript text/x-js text/richtext image/svg+xml text/plain text/xsd text/xsl text/xml image/x-icon;
+        gzip_vary on;
+}

@@ -1,0 +1,76 @@
+version: '3.0'
+
+# this docker file builds 2 wordpress websites:
+# vasulka.cz and tcoil.info
+# each site has its own database
+
+# source paths to files or directories
+# are relative to location of docker.compose.yml file
+
+services:
+ 
+ reverse_proxy:
+  image: nginx
+  ports:
+   - 80:80
+     #- 8080:8080
+     #- 8081:8081  
+     #expose:
+     #- 8080
+     #- 8081       
+  volumes:
+   - ./vasulka_cz_conf:/etc/nginx/sites-enabled/vasulka.cz
+   - ./vasulka_cz_conf:/etc/nginx/sites-available/vasulka.cz  
+   - ./tcoil_info_conf:/etc/nginx/sites-enabled/tcoil.info
+   - ./tcoil_info_conf:/etc/nginx/sites-available/tcoil.info  
+   - ./nginx_conf:/etc/nginx/nginx.conf   
+   #links:
+   #- wordpress_vasulka_cz
+   #- wordpress_tcoil_info     
+
+
+
+
+
+ wordpress_vasulka_cz:
+    image: wordpress
+    links:
+     - mariadb_vasulka_cz:mysql
+    environment:
+     - WORDPRESS_DB_PASSWORD=password
+    ports:
+     - "8080:80"
+    volumes:
+     - ./html_vasulka_cz:/var/www/html
+
+ wordpress_tcoil_info:
+    image: wordpress
+    container_name: wordpress_tcoil_info
+    links:
+     - mariadb_tcoil_info:mysql
+    environment:
+     - WORDPRESS_DB_PASSWORD=password
+    ports:
+     - "8081:80"
+    volumes:
+     - ./html_tcoil_info:/var/www/html
+
+ mariadb_vasulka_cz:
+    image: mariadb
+    environment:
+     - MYSQL_ROOT_PASSWORD=password
+     - MYSQL_DATABASE_0=wordpress_vasulka_cz
+    #ports:
+    #- "3310:3306"
+    volumes:
+     - ./database_vasulka_cz:/var/lib/mysql
+
+ mariadb_tcoil_info:
+    image: mariadb
+    environment:
+     - MYSQL_ROOT_PASSWORD=password
+     - MYSQL_DATABASE_1=wordpress_tcoil_info
+    #ports:
+    #- "3311:3306"
+    volumes:
+     - ./database_tcoil_info:/var/lib/mysql
